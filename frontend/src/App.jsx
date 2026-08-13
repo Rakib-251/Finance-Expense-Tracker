@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import "./App.css";
 
-const API_URL = "https://finance-expense-tracker-api-3yh8.onrender.com";
+const API_URL = "https://finance-expense-tracker-api-3yh8.onrender.com/api/transactions";
 
 function App() {
   const [transactions, setTransactions] = useState([]);
