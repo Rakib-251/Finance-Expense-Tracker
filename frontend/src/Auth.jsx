@@ -10,9 +10,12 @@ function Auth({ onAuth }) {
         name: "",
         email: "",
         password: "",
+        confirmPassword: "",
     });
 
     const [showPassword, setShowPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] =
+        useState(false);
 
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
@@ -33,6 +36,27 @@ function Auth({ onAuth }) {
     };
 
     // ===============================
+    // SWITCH LOGIN / SIGNUP
+    // ===============================
+
+    const switchMode = (loginMode) => {
+        setIsLogin(loginMode);
+
+        setError("");
+        setMessage("");
+
+        setShowPassword(false);
+        setShowConfirmPassword(false);
+
+        setFormData({
+            name: "",
+            email: "",
+            password: "",
+            confirmPassword: "",
+        });
+    };
+
+    // ===============================
     // SUBMIT
     // ===============================
 
@@ -41,6 +65,18 @@ function Auth({ onAuth }) {
 
         setError("");
         setMessage("");
+
+        // Check password confirmation
+        if (!isLogin) {
+            if (
+                formData.password !==
+                formData.confirmPassword
+            ) {
+                setError("Passwords do not match");
+                return;
+            }
+        }
+
         setLoading(true);
 
         try {
@@ -73,9 +109,12 @@ function Auth({ onAuth }) {
             const contentType =
                 response.headers.get("content-type");
 
-            if (!contentType?.includes("application/json")) {
+            if (
+                !contentType ||
+                !contentType.includes("application/json")
+            ) {
                 throw new Error(
-                    "Server returned an invalid response. Please make sure the backend is deployed."
+                    "Server returned an invalid response."
                 );
             }
 
@@ -112,7 +151,7 @@ function Auth({ onAuth }) {
 
             else {
                 setMessage(
-                    "Account created successfully! Please sign in."
+                    "Account created successfully! Please login."
                 );
 
                 setIsLogin(true);
@@ -121,11 +160,12 @@ function Auth({ onAuth }) {
                     name: "",
                     email: formData.email,
                     password: "",
+                    confirmPassword: "",
                 });
 
                 setShowPassword(false);
+                setShowConfirmPassword(false);
             }
-
         } catch (error) {
             console.error(
                 "Authentication error:",
@@ -133,29 +173,45 @@ function Auth({ onAuth }) {
             );
 
             setError(error.message);
-
         } finally {
             setLoading(false);
         }
     };
 
     // ===============================
-    // SWITCH LOGIN / SIGNUP
+    // STYLES
     // ===============================
 
-    const switchMode = () => {
-        setIsLogin(!isLogin);
+    const inputStyle = {
+        width: "100%",
+        padding: "14px",
+        boxSizing: "border-box",
+        border: "1px solid #444",
+        borderRadius: "10px",
+        fontSize: "15px",
+        background: "#3f3f3f",
+        color: "#ffffff",
+        outline: "none",
+    };
 
-        setError("");
-        setMessage("");
+    const labelStyle = {
+        display: "block",
+        marginBottom: "8px",
+        fontWeight: "600",
+        color: "#ffffff",
+    };
 
-        setShowPassword(false);
-
-        setFormData({
-            name: "",
-            email: "",
-            password: "",
-        });
+    const eyeButtonStyle = {
+        position: "absolute",
+        right: "12px",
+        top: "50%",
+        transform: "translateY(-50%)",
+        border: "none",
+        background: "transparent",
+        color: "#ffffff",
+        cursor: "pointer",
+        fontSize: "19px",
+        padding: "5px",
     };
 
     return (
@@ -179,7 +235,7 @@ function Auth({ onAuth }) {
                     maxWidth: "430px",
                     background: "#181a1b",
                     borderRadius: "20px",
-                    padding: "35px",
+                    padding: "40px",
                     boxSizing: "border-box",
                     boxShadow:
                         "0 25px 60px rgba(0,0,0,0.35)",
@@ -203,7 +259,6 @@ function Auth({ onAuth }) {
                             height: "60px",
                             borderRadius: "16px",
                             background: "#0f1424",
-                            color: "#ffffff",
                             display: "flex",
                             alignItems: "center",
                             justifyContent: "center",
@@ -217,7 +272,7 @@ function Auth({ onAuth }) {
 
                     <h1
                         style={{
-                            margin: 0,
+                            margin: "0 0 8px",
                             fontSize: "28px",
                         }}
                     >
@@ -226,106 +281,32 @@ function Auth({ onAuth }) {
 
                     <p
                         style={{
-                            marginTop: "8px",
+                            margin: 0,
                             color: "#9ca3af",
+                            fontSize: "16px",
                         }}
                     >
-                        Manage your money smarter
+                        {isLogin
+                            ? "Login to manage your finances"
+                            : "Start managing your finances"}
                     </p>
                 </div>
 
                 {/* ===============================
-                    LOGIN / SIGNUP TABS
-                =============================== */}
-
-                <div
-                    style={{
-                        display: "flex",
-                        background: "#202122",
-                        borderRadius: "10px",
-                        padding: "4px",
-                        marginBottom: "25px",
-                    }}
-                >
-                    <button
-                        type="button"
-                        onClick={() => {
-                            setIsLogin(true);
-                            setError("");
-                            setMessage("");
-                            setShowPassword(false);
-                        }}
-                        style={{
-                            flex: 1,
-                            border: "none",
-                            borderRadius: "8px",
-                            padding: "11px",
-                            cursor: "pointer",
-                            fontWeight: "600",
-                            background: isLogin
-                                ? "#202122"
-                                : "transparent",
-                            color: "#ffffff",
-                            fontSize: "16px",
-                        }}
-                    >
-                        Sign In
-                    </button>
-
-                    <button
-                        type="button"
-                        onClick={() => {
-                            setIsLogin(false);
-                            setError("");
-                            setMessage("");
-                            setShowPassword(false);
-                        }}
-                        style={{
-                            flex: 1,
-                            border: "none",
-                            borderRadius: "8px",
-                            padding: "11px",
-                            cursor: "pointer",
-                            fontWeight: "600",
-                            background: !isLogin
-                                ? "#0f1424"
-                                : "transparent",
-                            color: "#ffffff",
-                            fontSize: "16px",
-                        }}
-                    >
-                        Sign Up
-                    </button>
-                </div>
-
-                {/* ===============================
-                    TITLE
+                    PAGE TITLE
                 =============================== */}
 
                 <h2
                     style={{
-                        marginBottom: "8px",
                         textAlign: "center",
+                        margin: "0 0 25px",
+                        fontSize: "24px",
                     }}
                 >
                     {isLogin
                         ? "Welcome back!"
-                        : "Create your account"}
+                        : "Create Account"}
                 </h2>
-
-                <p
-                    style={{
-                        marginTop: 0,
-                        marginBottom: "22px",
-                        color: "#9ca3af",
-                        textAlign: "center",
-                        fontSize: "16px",
-                    }}
-                >
-                    {isLogin
-                        ? "Sign in to access your finances."
-                        : "Start managing your personal finances."}
-                </p>
 
                 {/* ===============================
                     ERROR
@@ -335,7 +316,7 @@ function Auth({ onAuth }) {
                     <div
                         style={{
                             background: "#650000",
-                            color: "#ff5c5c",
+                            color: "#ff7777",
                             padding: "12px",
                             borderRadius: "10px",
                             marginBottom: "18px",
@@ -376,15 +357,12 @@ function Auth({ onAuth }) {
                     {/* NAME */}
 
                     {!isLogin && (
-                        <>
-                            <label
-                                style={{
-                                    display: "block",
-                                    marginBottom: "7px",
-                                    fontWeight: "600",
-                                    textAlign: "center",
-                                }}
-                            >
+                        <div
+                            style={{
+                                marginBottom: "18px",
+                            }}
+                        >
+                            <label style={labelStyle}>
                                 Name
                             </label>
 
@@ -395,143 +373,151 @@ function Auth({ onAuth }) {
                                 onChange={handleChange}
                                 placeholder="Enter your name"
                                 required
-                                style={{
-                                    width: "100%",
-                                    padding: "14px",
-                                    boxSizing:
-                                        "border-box",
-                                    border:
-                                        "1px solid #444",
-                                    borderRadius: "10px",
-                                    marginBottom: "18px",
-                                    fontSize: "15px",
-                                    background:
-                                        "#3f3f3f",
-                                    color: "#ffffff",
-                                    outline: "none",
-                                }}
+                                style={inputStyle}
                             />
-                        </>
+                        </div>
                     )}
 
                     {/* EMAIL */}
 
-                    <label
+                    <div
                         style={{
-                            display: "block",
-                            marginBottom: "7px",
-                            fontWeight: "600",
-                            textAlign: "center",
+                            marginBottom: "18px",
                         }}
                     >
-                        Email
-                    </label>
+                        <label style={labelStyle}>
+                            Email
+                        </label>
 
-                    <input
-                        type="email"
-                        name="email"
-                        value={formData.email}
-                        onChange={handleChange}
-                        placeholder="you@example.com"
-                        required
-                        style={{
-                            width: "100%",
-                            padding: "14px",
-                            boxSizing: "border-box",
-                            border:
-                                "1px solid #444",
-                            borderRadius: "10px",
-                            marginBottom: "18px",
-                            fontSize: "15px",
-                            background: "#3f3f3f",
-                            color: "#ffffff",
-                            outline: "none",
-                        }}
-                    />
+                        <input
+                            type="email"
+                            name="email"
+                            value={formData.email}
+                            onChange={handleChange}
+                            placeholder="Enter your email"
+                            required
+                            style={inputStyle}
+                        />
+                    </div>
 
                     {/* PASSWORD */}
 
-                    <label
-                        style={{
-                            display: "block",
-                            marginBottom: "7px",
-                            fontWeight: "600",
-                            textAlign: "center",
-                        }}
-                    >
-                        Password
-                    </label>
-
                     <div
                         style={{
-                            position: "relative",
-                            marginBottom: "22px",
+                            marginBottom: "18px",
                         }}
                     >
-                        <input
-                            type={
-                                showPassword
-                                    ? "text"
-                                    : "password"
-                            }
-                            name="password"
-                            value={formData.password}
-                            onChange={handleChange}
-                            placeholder="Minimum 6 characters"
-                            minLength="6"
-                            required
-                            style={{
-                                width: "100%",
-                                padding: "14px 50px 14px 14px",
-                                boxSizing:
-                                    "border-box",
-                                border:
-                                    "1px solid #444",
-                                borderRadius: "10px",
-                                fontSize: "15px",
-                                background:
-                                    "#3f3f3f",
-                                color: "#ffffff",
-                                outline: "none",
-                            }}
-                        />
+                        <label style={labelStyle}>
+                            Password
+                        </label>
 
-                        {/* EYE BUTTON */}
-
-                        <button
-                            type="button"
-                            onClick={() =>
-                                setShowPassword(
-                                    !showPassword
-                                )
-                            }
-                            aria-label={
-                                showPassword
-                                    ? "Hide password"
-                                    : "Show password"
-                            }
+                        <div
                             style={{
-                                position: "absolute",
-                                right: "12px",
-                                top: "50%",
-                                transform:
-                                    "translateY(-50%)",
-                                border: "none",
-                                background:
-                                    "transparent",
-                                color: "#d1d5db",
-                                cursor: "pointer",
-                                fontSize: "20px",
-                                padding: "5px",
+                                position: "relative",
                             }}
                         >
-                            {showPassword
-                                ? "🙈"
-                                : "👁️"}
-                        </button>
+                            <input
+                                type={
+                                    showPassword
+                                        ? "text"
+                                        : "password"
+                                }
+                                name="password"
+                                value={formData.password}
+                                onChange={handleChange}
+                                placeholder="Enter your password"
+                                minLength="6"
+                                required
+                                style={{
+                                    ...inputStyle,
+                                    paddingRight: "50px",
+                                }}
+                            />
+
+                            <button
+                                type="button"
+                                onClick={() =>
+                                    setShowPassword(
+                                        !showPassword
+                                    )
+                                }
+                                style={eyeButtonStyle}
+                                aria-label={
+                                    showPassword
+                                        ? "Hide password"
+                                        : "Show password"
+                                }
+                            >
+                                {showPassword
+                                    ? "🙈"
+                                    : "👁️"}
+                            </button>
+                        </div>
                     </div>
 
-                    {/* SUBMIT BUTTON */}
+                    {/* CONFIRM PASSWORD */}
+
+                    {!isLogin && (
+                        <div
+                            style={{
+                                marginBottom: "22px",
+                            }}
+                        >
+                            <label style={labelStyle}>
+                                Confirm Password
+                            </label>
+
+                            <div
+                                style={{
+                                    position: "relative",
+                                }}
+                            >
+                                <input
+                                    type={
+                                        showConfirmPassword
+                                            ? "text"
+                                            : "password"
+                                    }
+                                    name="confirmPassword"
+                                    value={
+                                        formData.confirmPassword
+                                    }
+                                    onChange={
+                                        handleChange
+                                    }
+                                    placeholder="Confirm your password"
+                                    minLength="6"
+                                    required
+                                    style={{
+                                        ...inputStyle,
+                                        paddingRight:
+                                            "50px",
+                                    }}
+                                />
+
+                                <button
+                                    type="button"
+                                    onClick={() =>
+                                        setShowConfirmPassword(
+                                            !showConfirmPassword
+                                        )
+                                    }
+                                    style={eyeButtonStyle}
+                                    aria-label={
+                                        showConfirmPassword
+                                            ? "Hide confirm password"
+                                            : "Show confirm password"
+                                    }
+                                >
+                                    {showConfirmPassword
+                                        ? "🙈"
+                                        : "👁️"}
+                                </button>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* BUTTON */}
 
                     <button
                         type="submit"
@@ -555,45 +541,65 @@ function Auth({ onAuth }) {
                         {loading
                             ? "Please wait..."
                             : isLogin
-                            ? "Sign In"
-                            : "Create Account"}
+                            ? "Login"
+                            : "Sign Up"}
                     </button>
                 </form>
 
                 {/* ===============================
-                    SWITCH
+                    BOTTOM LINK
                 =============================== */}
 
-                <p
+                <div
                     style={{
                         textAlign: "center",
-                        marginTop: "24px",
+                        marginTop: "22px",
                         color: "#9ca3af",
                         fontSize: "14px",
                     }}
                 >
-                    {isLogin
-                        ? "Don't have an account? "
-                        : "Already have an account? "}
-
-                    <button
-                        type="button"
-                        onClick={switchMode}
-                        style={{
-                            border: "none",
-                            background: "none",
-                            color: "#ffffff",
-                            fontWeight: "700",
-                            cursor: "pointer",
-                            padding: 0,
-                        }}
-                    >
-                        {isLogin
-                            ? "Sign Up"
-                            : "Sign In"}
-                    </button>
-                </p>
-
+                    {isLogin ? (
+                        <>
+                            Don't have an account?{" "}
+                            <button
+                                type="button"
+                                onClick={() =>
+                                    switchMode(false)
+                                }
+                                style={{
+                                    border: "none",
+                                    background: "none",
+                                    color: "#ffffff",
+                                    fontWeight: "700",
+                                    cursor: "pointer",
+                                    padding: 0,
+                                }}
+                            >
+                                Sign Up
+                            </button>
+                        </>
+                    ) : (
+                        <>
+                            Already have an account?{" "}
+                            <button
+                                type="button"
+                                onClick={() =>
+                                    switchMode(true)
+                                }
+                                style={{
+                                    border: "none",
+                                    background: "none",
+                                    color: "#ffffff",
+                                    fontWeight: "700",
+                                    cursor: "pointer",
+                                    padding: 0,
+                                }}
+                            >
+                                Login
+                            </button>
+                        </>
+                    )}
+                </div>
             </div>
         </div>
     );
