@@ -1,204 +1,290 @@
 # 💰 Personal Finance & Expense Tracker
 
-A full-stack **Personal Finance & Expense Tracker** built with **React,
-Vite, Node.js, Express, and MongoDB**.\
-The application allows users to manage income and expenses, view monthly
-financial summaries, search and filter transactions, and perform CRUD
-operations.
+A full-stack personal finance and expense tracking web application built with **React, Node.js, Express.js, and MongoDB**.
 
-## 🚀 Live Project
+## 🚀 Features
 
--   **Frontend:** Deployed on Netlify
--   **Backend API:** Deployed on Render
--   **GitHub:** https://github.com/Rakib-251/Finance-Expense-Tracker.git
+### 🔐 Authentication
+- User Sign Up and Login
+- Password hashing with bcrypt
+- JWT-based authentication
+- Protected transaction routes
+- User-specific transactions
+- Password show/hide
+- Confirm password during registration
+- Logout
 
-## ✨ Features
+### 💸 Transaction Management
+- Add income and expenses
+- Edit transactions
+- Delete transactions
+- Delete all personal transactions
+- View transaction history
+- Categories, descriptions, dates, and transaction types
 
--   Add income and expense transactions
--   Edit existing transactions
--   Delete individual transactions
--   Reset/delete all transactions
--   View total monthly income
--   View total monthly expenses
--   View monthly savings/balance
--   Search transactions by title or category
--   Filter transactions by income or expense
--   Select a month to view financial information
--   Indian Rupee (₹) currency formatting
--   Responsive React-based user interface
--   REST API integration with the backend
--   Persistent transaction data using MongoDB
+### 📊 Dashboard
+- Search transactions
+- Filter by transaction type
+- Filter by month
+- Track income and expenses
 
-## 🛠️ Technologies Used
+## 🛠️ Tech Stack
 
-### Frontend
+**Frontend:** React.js, JavaScript, HTML, CSS, Vite
 
--   React.js
--   Vite
--   JavaScript
--   HTML
--   CSS
+**Backend:** Node.js, Express.js, REST API, JWT, bcryptjs, CORS
 
-### Backend
+**Database:** MongoDB, Mongoose
 
--   Node.js
--   Express.js
--   REST API
-
-### Database
-
--   MongoDB
-
-### Deployment & Version Control
-
--   Netlify
--   Render
--   Git
--   GitHub
+**Tools:** Git, GitHub, Render, VS Code
 
 ## 📁 Project Structure
 
-``` text
-Finance-Expense-Tracker/
-│
+```text
+Personal Finance & Expense Tracker/
+├── backend/
+│   ├── controllers/
+│   │   ├── authController.js
+│   │   └── transactionController.js
+│   ├── middleware/
+│   │   └── authMiddleware.js
+│   ├── models/
+│   │   ├── User.js
+│   │   └── Transaction.js
+│   ├── routes/
+│   │   ├── authRoutes.js
+│   │   └── transactionRoutes.js
+│   ├── .env
+│   ├── package.json
+│   └── server.js
 ├── frontend/
 │   ├── src/
-│   │   ├── assets/
-│   │   ├── App.css
 │   │   ├── App.jsx
+│   │   ├── Auth.jsx
+│   │   ├── App.css
 │   │   ├── index.css
 │   │   └── main.jsx
 │   ├── package.json
-│   └── ...
-│
-├── backend/
-│   ├── ...
-│   └── package.json
-│
+│   └── vite.config.js
 └── README.md
 ```
 
-## 🔄 Application Flow
+## 🔐 Authentication Flow
 
-``` text
-React Frontend
-      │
-      │ REST API Requests
-      ▼
-Node.js + Express Backend
-      │
-      │ Database Operations
-      ▼
+```text
+Sign Up
+   ↓
+Name + Email + Password
+   ↓
+bcrypt password hashing
+   ↓
 MongoDB
 ```
 
-## 🔌 API Operations
-
-The frontend communicates with the deployed backend API for transaction
-management.
-
-  Method   Operation
-  -------- ------------------------
-  GET      Fetch all transactions
-  POST     Add a transaction
-  PUT      Update a transaction
-  DELETE   Delete a transaction
-  DELETE   Reset all transactions
-
-The frontend uses the deployed Render backend as its API endpoint.
-
-## 💻 Run the Project Locally
-
-### 1. Clone the repository
-
-``` bash
-git clone https://github.com/Rakib-251/Finance-Expense-Tracker.git
-cd Finance-Expense-Tracker
+```text
+Login
+   ↓
+Verify credentials
+   ↓
+JWT token
+   ↓
+Protected dashboard
 ```
 
-### 2. Start the backend
+## 🔑 API Endpoints
 
-``` bash
+### Authentication
+
+```http
+POST /api/auth/signup
+POST /api/auth/login
+```
+
+### Transactions
+
+All transaction routes require:
+
+```http
+Authorization: Bearer YOUR_JWT_TOKEN
+```
+
+| Method | Endpoint | Description |
+|---|---|---|
+| POST | `/api/transactions` | Create transaction |
+| GET | `/api/transactions` | Get user's transactions |
+| GET | `/api/transactions/:id` | Get one transaction |
+| PUT | `/api/transactions/:id` | Update transaction |
+| DELETE | `/api/transactions/:id` | Delete transaction |
+| DELETE | `/api/transactions/reset/all` | Delete user's transactions |
+
+## 🗃️ Database Models
+
+### User
+
+```text
+User
+├── name
+├── email
+├── password
+└── timestamps
+```
+
+### Transaction
+
+```text
+Transaction
+├── user
+├── title
+├── amount
+├── type
+├── category
+├── date
+├── description
+└── timestamps
+```
+
+Each transaction belongs to a specific user.
+
+## ⚙️ Installation
+
+### Clone
+
+```bash
+git clone YOUR_GITHUB_REPOSITORY_URL
+cd "Personal Finance & Expense Tracker"
+```
+
+### Backend
+
+```bash
 cd backend
 npm install
+```
+
+Create `.env`:
+
+```env
+MONGO_URI=your_mongodb_connection_string
+JWT_SECRET=your_secure_jwt_secret
+PORT=5000
+```
+
+Start:
+
+```bash
 npm start
 ```
 
-Make sure your backend environment variables are configured correctly,
-including the MongoDB connection.
+Backend:
 
-### 3. Start the frontend
+```text
+http://localhost:5000
+```
+
+### Frontend
 
 Open another terminal:
 
-``` bash
+```bash
 cd frontend
 npm install
 npm run dev
 ```
 
-The Vite development server will provide the local frontend URL in the
-terminal.
+Frontend:
 
-## 🏗️ Build Frontend for Production
-
-From the `frontend` folder:
-
-``` bash
-npm run build
+```text
+http://localhost:5173
 ```
 
-The production files will be generated inside the `dist` folder.
+## 🌐 Environment Variables
 
-## 📊 Main Functionalities
+Never upload `.env` to GitHub.
 
-### Dashboard
+Add to `.gitignore`:
 
-Displays: - Selected month - Total income - Total expenses -
-Savings/balance
+```text
+.env
+node_modules/
+dist/
+```
 
-### Transactions
+## 🚀 Deployment
 
-Each transaction contains: - Title - Amount - Type - Category - Date -
-Description
+- Frontend: Vercel or Netlify
+- Backend: Render
+- Database: MongoDB Atlas
 
-### Search & Filter
+## 🔒 Security
 
-Users can search transactions and filter them by: - All - Income -
-Expense
+- Password hashing with bcrypt
+- JWT authentication
+- Protected API routes
+- User-specific transactions
+- Environment variables for secrets
+- CORS configuration
 
-## 🔐 Data
+Never commit passwords, MongoDB credentials, or JWT secrets.
 
-Transaction data is stored in the application's backend/database rather
-than only in browser local storage.
+## 🧪 User Flow
 
-## 📌 Future Improvements
+```text
+Open Application
+       ↓
+     Login
+       ↓
+Authentication successful
+       ↓
+     Dashboard
+       ↓
+Add Income / Expense
+       ↓
+Transaction stored in MongoDB
+       ↓
+Transaction linked to user
+       ↓
+Logout
+       ↓
+Login again
+       ↓
+Personal transactions restored
+```
 
--   User authentication and registration
--   Multiple user accounts
--   Expense charts and graphs
--   Budget limits and alerts
--   Export transactions to CSV/PDF
--   Category-wise spending analytics
--   Dark/light theme
--   Improved mobile UI
--   Dashboard statistics and reports
+## 📸 Screenshots
+
+Add your screenshots here:
+
+```markdown
+## Login
+![Login Page](screenshots/login.png)
+
+## Sign Up
+![Sign Up Page](screenshots/signup.png)
+
+## Dashboard
+![Dashboard](screenshots/dashboard.png)
+```
+
+## 🎯 Future Improvements
+
+- 📈 Expense charts
+- 📊 Monthly financial reports
+- 📅 Advanced date filtering
+- 💳 Budget management
+- 🔔 Spending alerts
+- 📥 Export transactions to CSV/PDF
+- 🌙 Dark/Light theme
+- 👤 User profile
+- 🔑 Forgot password
+- 📱 Improved mobile responsiveness
 
 ## 👨‍💻 Author
 
 **Rakib Ali**
 
-B.Tech in Computer Science & Engineering\
+B.Tech in Computer Science & Engineering  
 Brainware University
 
-## ⭐ Support
+## ⭐ Project
 
-If you find this project useful, consider giving the repository a ⭐ on
-GitHub.
-
-------------------------------------------------------------------------
-
-### 📄 License
-
-This project is created for learning, portfolio, and educational
-purposes.
+If you find this project useful, consider giving the repository a ⭐ on GitHub.
