@@ -11,28 +11,55 @@ const {
     deleteAllTransactions
 } = require("../controllers/transactionController");
 
+const authMiddleware = require("../middleware/authMiddleware");
 
+
+// =========================
+// PROTECT ALL TRANSACTION ROUTES
+// =========================
+
+router.use(authMiddleware);
+
+
+// =========================
 // CREATE
+// =========================
+
 router.post("/", createTransaction);
 
 
+// =========================
 // GET ALL
+// =========================
+
 router.get("/", getTransactions);
 
 
-// RESET ALL — MUST BE BEFORE /:id
+// =========================
+// RESET ALL USER TRANSACTIONS
+// =========================
+
 router.delete("/reset/all", deleteAllTransactions);
 
 
+// =========================
 // GET ONE
+// =========================
+
 router.get("/:id", getTransaction);
 
 
+// =========================
 // UPDATE
+// =========================
+
 router.put("/:id", updateTransaction);
 
 
+// =========================
 // DELETE ONE
+// =========================
+
 router.delete("/:id", deleteTransaction);
 
 

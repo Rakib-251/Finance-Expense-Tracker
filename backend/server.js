@@ -12,7 +12,7 @@ const mongoose = require("mongoose");
 require("dotenv").config();
 
 const transactionRoutes = require("./routes/transactionRoutes");
-const Transaction = require("./models/Transaction");
+const authRoutes = require("./routes/authRoutes");
 
 const app = express();
 
@@ -35,37 +35,22 @@ app.get("/", (req, res) => {
 
 
 // ===============================
-// RESET ALL TRANSACTIONS
-// ===============================
-
-app.delete("/api/transactions/reset/all", async (req, res) => {
-    try {
-        const result = await Transaction.deleteMany({});
-
-        res.status(200).json({
-            success: true,
-            message: "All transactions deleted successfully",
-            deletedCount: result.deletedCount
-        });
-
-    } catch (error) {
-        console.error("Reset error:", error);
-
-        res.status(500).json({
-            success: false,
-            message: error.message
-        });
-    }
-});
-
-
-// ===============================
 // TRANSACTION ROUTES
 // ===============================
 
 app.use(
     "/api/transactions",
     transactionRoutes
+);
+
+
+// ===============================
+// AUTHENTICATION ROUTES
+// ===============================
+
+app.use(
+    "/api/auth",
+    authRoutes
 );
 
 

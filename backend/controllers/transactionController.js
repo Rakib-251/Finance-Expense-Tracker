@@ -1,7 +1,10 @@
 const Transaction = require("../models/Transaction");
 
 
+// =========================
 // CREATE TRANSACTION
+// =========================
+
 const createTransaction = async (req, res) => {
     try {
         const {
@@ -27,6 +30,7 @@ const createTransaction = async (req, res) => {
         }
 
         const transaction = await Transaction.create({
+            user: req.userId,
             title,
             amount: Number(amount),
             type,
@@ -52,14 +56,18 @@ const createTransaction = async (req, res) => {
 };
 
 
+// =========================
 // GET ALL TRANSACTIONS
+// =========================
+
 const getTransactions = async (req, res) => {
     try {
-        const transactions = await Transaction.find()
-            .sort({
-                date: -1,
-                createdAt: -1
-            });
+        const transactions = await Transaction.find({
+            user: req.userId
+        }).sort({
+            date: -1,
+            createdAt: -1
+        });
 
         res.status(200).json({
             success: true,
@@ -78,12 +86,16 @@ const getTransactions = async (req, res) => {
 };
 
 
+// =========================
 // GET SINGLE TRANSACTION
+// =========================
+
 const getTransaction = async (req, res) => {
     try {
-        const transaction = await Transaction.findById(
-            req.params.id
-        );
+        const transaction = await Transaction.findOne({
+            _id: req.params.id,
+            user: req.userId
+        });
 
         if (!transaction) {
             return res.status(404).json({
@@ -108,12 +120,18 @@ const getTransaction = async (req, res) => {
 };
 
 
+// =========================
 // UPDATE TRANSACTION
+// =========================
+
 const updateTransaction = async (req, res) => {
     try {
         const transaction =
-            await Transaction.findByIdAndUpdate(
-                req.params.id,
+            await Transaction.findOneAndUpdate(
+                {
+                    _id: req.params.id,
+                    user: req.userId
+                },
                 req.body,
                 {
                     new: true,
@@ -145,13 +163,17 @@ const updateTransaction = async (req, res) => {
 };
 
 
+// =========================
 // DELETE ONE TRANSACTION
+// =========================
+
 const deleteTransaction = async (req, res) => {
     try {
         const transaction =
-            await Transaction.findByIdAndDelete(
-                req.params.id
-            );
+            await Transaction.findOneAndDelete({
+                _id: req.params.id,
+                user: req.userId
+            });
 
         if (!transaction) {
             return res.status(404).json({
@@ -177,14 +199,19 @@ const deleteTransaction = async (req, res) => {
 };
 
 
-// DELETE ALL TRANSACTIONS
+// =========================
+// DELETE ALL USER TRANSACTIONS
+// =========================
+
 const deleteAllTransactions = async (req, res) => {
     try {
-        const result = await Transaction.deleteMany({});
+        const result = await Transaction.deleteMany({
+            user: req.userId
+        });
 
         res.status(200).json({
             success: true,
-            message: "All transactions deleted successfully",
+            message: "All your transactions deleted successfully",
             deletedCount: result.deletedCount
         });
 
