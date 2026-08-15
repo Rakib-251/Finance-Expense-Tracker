@@ -30,8 +30,33 @@ app.use(express.json());
 // ===============================
 
 app.get("/", (req, res) => {
-    res.send("Personal Finance Tracker API is running!");
+    res.json({
+        success: true,
+        message: "Personal Finance Tracker API is running!"
+    });
 });
+
+
+// ===============================
+// HEALTH CHECK
+// ===============================
+
+app.get("/health", (req, res) => {
+    res.status(200).json({
+        success: true,
+        message: "Finance Tracker API is healthy"
+    });
+});
+
+
+// ===============================
+// AUTH ROUTES
+// ===============================
+
+app.use(
+    "/api/auth",
+    authRoutes
+);
 
 
 // ===============================
@@ -45,13 +70,16 @@ app.use(
 
 
 // ===============================
-// AUTHENTICATION ROUTES
+// 404 ROUTE
 // ===============================
 
-app.use(
-    "/api/auth",
-    authRoutes
-);
+app.use((req, res) => {
+    res.status(404).json({
+        success: false,
+        message: "API route not found",
+        path: req.originalUrl
+    });
+});
 
 
 // ===============================
@@ -62,14 +90,23 @@ mongoose
     .connect(process.env.MONGO_URI)
     .then(() => {
 
-        console.log("MongoDB connected successfully");
+        console.log(
+            "MongoDB connected successfully"
+        );
 
-        const PORT = process.env.PORT || 5000;
+        const PORT =
+            process.env.PORT || 5000;
 
         app.listen(PORT, () => {
+
             console.log(
-                `Server running on http://localhost:${PORT}`
+                `Server running on port ${PORT}`
             );
+
+            console.log(
+                `Health check: http://localhost:${PORT}/health`
+            );
+
         });
 
     })
@@ -80,4 +117,5 @@ mongoose
             error.message
         );
 
+        process.exit(1);
     });
