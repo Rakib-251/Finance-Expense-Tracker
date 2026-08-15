@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import "./App.css";
 
 const API_URL =
-  "https://finance-expense-tracker-api-3yh8.onrender.com/api/transactions";
+  "https://finance-expense-tracker-api-3yh8.onrender.com";
 
 function App() {
   const [transactions, setTransactions] = useState([]);
@@ -16,7 +16,7 @@ function App() {
   );
 
   const [formData, setFormData] = useState({
-    title: "Food",
+    title: "",
     amount: "",
     type: "expense",
     category: "Food",
@@ -53,7 +53,7 @@ function App() {
 
   const resetForm = () => {
     setFormData({
-      title: "Food",
+      title: "",
       amount: "",
       type: "expense",
       category: "Food",
@@ -72,16 +72,28 @@ function App() {
   const handleChange = (event) => {
     const { name, value } = event.target;
 
-    setFormData((previous) => ({
-      ...previous,
-      [name]: value,
+    setFormData((previousData) => {
+      // =========================
+      // SALARY = INCOME
+      // =========================
 
-      // If category is NOT Other,
-      // automatically use category as title.
-      ...(name === "category" && value !== "Other"
-        ? { title: value }
-        : {}),
-    }));
+      if (name === "category" && value === "Salary") {
+        return {
+          ...previousData,
+          category: value,
+          type: "income",
+        };
+      }
+
+      // =========================
+      // OTHER CATEGORIES
+      // =========================
+
+      return {
+        ...previousData,
+        [name]: value,
+      };
+    });
   };
 
   // =========================
@@ -103,18 +115,8 @@ function App() {
         headers: {
           "Content-Type": "application/json",
         },
-
         body: JSON.stringify({
           ...formData,
-
-          // If category is Other, use the
-          // manually entered title.
-          // Otherwise use category as title.
-          title:
-            formData.category === "Other"
-              ? formData.title.trim()
-              : formData.category,
-
           amount: Number(formData.amount),
         }),
       });
@@ -129,6 +131,7 @@ function App() {
 
       resetForm();
       await fetchTransactions();
+
     } catch (error) {
       console.error("Save error:", error);
       alert(`Error: ${error.message}`);
@@ -170,19 +173,24 @@ function App() {
     if (!confirmed) return;
 
     try {
-      const response = await fetch(`${API_URL}/${id}`, {
-        method: "DELETE",
-      });
+      const response = await fetch(
+        `${API_URL}/${id}`,
+        {
+          method: "DELETE",
+        }
+      );
 
       const result = await response.json();
 
       if (!response.ok || !result.success) {
         throw new Error(
-          result.message || "Transaction could not be deleted"
+          result.message ||
+            "Transaction could not be deleted"
         );
       }
 
       await fetchTransactions();
+
     } catch (error) {
       console.error("Delete error:", error);
       alert(`Delete failed: ${error.message}`);
@@ -212,13 +220,17 @@ function App() {
 
       if (!response.ok || !result.success) {
         throw new Error(
-          result.message || "Failed to reset transactions"
+          result.message ||
+            "Failed to reset transactions"
         );
       }
 
       setTransactions([]);
 
-      alert("All transactions deleted successfully.");
+      alert(
+        "All transactions deleted successfully."
+      );
+
     } catch (error) {
       console.error("Reset error:", error);
       alert(`Reset failed: ${error.message}`);
@@ -231,7 +243,9 @@ function App() {
 
   const monthlyTransactions = transactions.filter(
     (transaction) => {
-      const transactionMonth = new Date(transaction.date)
+      const transactionMonth = new Date(
+        transaction.date
+      )
         .toISOString()
         .slice(0, 7);
 
@@ -241,7 +255,8 @@ function App() {
 
   const totalIncome = monthlyTransactions
     .filter(
-      (transaction) => transaction.type === "income"
+      (transaction) =>
+        transaction.type === "income"
     )
     .reduce(
       (total, transaction) =>
@@ -251,7 +266,8 @@ function App() {
 
   const totalExpense = monthlyTransactions
     .filter(
-      (transaction) => transaction.type === "expense"
+      (transaction) =>
+        transaction.type === "expense"
     )
     .reduce(
       (total, transaction) =>
@@ -265,9 +281,10 @@ function App() {
   // SEARCH + FILTER
   // =========================
 
-  const filteredTransactions = transactions.filter(
-    (transaction) => {
-      const searchText = search.toLowerCase();
+  const filteredTransactions =
+    transactions.filter((transaction) => {
+      const searchText =
+        search.toLowerCase();
 
       const matchesSearch =
         transaction.title
@@ -281,30 +298,36 @@ function App() {
         filterType === "all" ||
         transaction.type === filterType;
 
-      return matchesSearch && matchesType;
-    }
-  );
+      return (
+        matchesSearch && matchesType
+      );
+    });
 
   // =========================
   // FORMATTERS
   // =========================
 
   const formatAmount = (amount) => {
-    return new Intl.NumberFormat("en-IN").format(
-      Number(amount)
-    );
+    return new Intl.NumberFormat(
+      "en-IN"
+    ).format(Number(amount));
   };
 
   const formatDate = (date) => {
-    return new Date(date).toLocaleDateString("en-IN", {
-      day: "2-digit",
-      month: "short",
-      year: "numeric",
-    });
+    return new Date(date).toLocaleDateString(
+      "en-IN",
+      {
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+      }
+    );
   };
 
   const formatMonth = (month) => {
-    return new Date(`${month}-01`).toLocaleDateString(
+    return new Date(
+      `${month}-01`
+    ).toLocaleDateString(
       "en-IN",
       {
         month: "long",
@@ -331,8 +354,13 @@ function App() {
           </div>
 
           <div>
-            <h1>Finance Tracker</h1>
-            <span>Personal Finance</span>
+            <h1>
+              Finance Tracker
+            </h1>
+
+            <span>
+              Personal Finance
+            </span>
           </div>
 
         </div>
@@ -360,6 +388,7 @@ function App() {
 
       </header>
 
+
       <main className="dashboard">
 
         {/* WELCOME */}
@@ -377,11 +406,12 @@ function App() {
             </h2>
 
             <p className="welcome-text">
-              Keep track of your income, expenses and
-              monthly savings.
+              Keep track of your income,
+              expenses and monthly savings.
             </p>
 
           </div>
+
 
           <div className="month-selector">
 
@@ -393,13 +423,16 @@ function App() {
               type="month"
               value={selectedMonth}
               onChange={(event) =>
-                setSelectedMonth(event.target.value)
+                setSelectedMonth(
+                  event.target.value
+                )
               }
             />
 
           </div>
 
         </section>
+
 
         {/* SUMMARY CARDS */}
 
@@ -429,6 +462,7 @@ function App() {
 
           </div>
 
+
           <div className="summary-card">
 
             <div className="card-top">
@@ -452,6 +486,7 @@ function App() {
             </p>
 
           </div>
+
 
           <div className="summary-card">
 
@@ -479,6 +514,7 @@ function App() {
 
         </section>
 
+
         {/* MONTHLY SUMMARY */}
 
         <section className="monthly-summary">
@@ -495,6 +531,7 @@ function App() {
 
           </div>
 
+
           <div className="monthly-grid">
 
             <div>
@@ -509,6 +546,7 @@ function App() {
 
             </div>
 
+
             <div>
 
               <span>
@@ -520,6 +558,7 @@ function App() {
               </strong>
 
             </div>
+
 
             <div>
 
@@ -536,6 +575,7 @@ function App() {
           </div>
 
         </section>
+
 
         {/* TRANSACTIONS */}
 
@@ -556,10 +596,13 @@ function App() {
             </div>
 
             <span className="transaction-count">
-              {filteredTransactions.length} transactions
+              {filteredTransactions.length}
+              {" "}
+              transactions
             </span>
 
           </div>
+
 
           {/* SEARCH AND FILTER */}
 
@@ -570,14 +613,19 @@ function App() {
               placeholder="Search transactions..."
               value={search}
               onChange={(event) =>
-                setSearch(event.target.value)
+                setSearch(
+                  event.target.value
+                )
               }
             />
+
 
             <select
               value={filterType}
               onChange={(event) =>
-                setFilterType(event.target.value)
+                setFilterType(
+                  event.target.value
+                )
               }
             >
 
@@ -597,6 +645,7 @@ function App() {
 
           </div>
 
+
           {/* EMPTY STATE */}
 
           {filteredTransactions.length === 0 ? (
@@ -612,13 +661,15 @@ function App() {
               </h3>
 
               <p>
-                Add an income or expense to start
-                tracking your finances.
+                Add an income or expense
+                to start tracking your finances.
               </p>
 
               <button
                 className="add-btn"
-                onClick={() => setShowForm(true)}
+                onClick={() =>
+                  setShowForm(true)
+                }
               >
                 + Add Transaction
               </button>
@@ -644,10 +695,12 @@ function App() {
                           transaction.type
                         }`}
                       >
-                        {transaction.type === "income"
+                        {transaction.type ===
+                        "income"
                           ? "↗"
                           : "↘"}
                       </div>
+
 
                       <div>
 
@@ -667,36 +720,40 @@ function App() {
 
                     </div>
 
+
                     <div className="transaction-right">
 
                       <strong
                         className={
-                          transaction.type === "income"
+                          transaction.type ===
+                          "income"
                             ? "income-text"
                             : "expense-text"
                         }
                       >
-
-                        {transaction.type === "income"
+                        {transaction.type ===
+                        "income"
                           ? "+"
                           : "-"}
-
                         ₹
                         {formatAmount(
                           transaction.amount
                         )}
-
                       </strong>
+
 
                       <div className="transaction-actions">
 
                         <button
                           onClick={() =>
-                            handleEdit(transaction)
+                            handleEdit(
+                              transaction
+                            )
                           }
                         >
                           Edit
                         </button>
+
 
                         <button
                           className="delete-action"
@@ -726,6 +783,7 @@ function App() {
 
       </main>
 
+
       {/* ADD / EDIT MODAL */}
 
       {showForm && (
@@ -739,7 +797,9 @@ function App() {
               <div>
 
                 <p className="small-heading">
-                  {editingId ? "UPDATE" : "NEW"}
+                  {editingId
+                    ? "UPDATE"
+                    : "NEW"}
                 </p>
 
                 <h2>
@@ -750,6 +810,7 @@ function App() {
 
               </div>
 
+
               <button
                 className="close-btn"
                 onClick={resetForm}
@@ -759,81 +820,22 @@ function App() {
 
             </div>
 
+
             <form onSubmit={handleSubmit}>
 
-              {/* CATEGORY FIRST */}
-
               <label>
-                Category
+                Title
               </label>
 
-              <select
-                name="category"
-                value={formData.category}
+              <input
+                type="text"
+                name="title"
+                value={formData.title}
                 onChange={handleChange}
+                placeholder="e.g. Monthly Salary"
                 required
-              >
+              />
 
-                <option value="Food">
-                  Food
-                </option>
-
-                <option value="Transport">
-                  Transport
-                </option>
-
-                <option value="Shopping">
-                  Shopping
-                </option>
-
-                <option value="Bills">
-                  Bills
-                </option>
-
-                <option value="Salary">
-                  Salary
-                </option>
-
-                <option value="Education">
-                  Education
-                </option>
-
-                <option value="Entertainment">
-                  Entertainment
-                </option>
-
-                <option value="Health">
-                  Health
-                </option>
-
-                <option value="Other">
-                  Other
-                </option>
-
-              </select>
-
-              {/* TITLE ONLY FOR OTHER */}
-
-              {formData.category === "Other" && (
-
-                <>
-                  <label>
-                    Title
-                  </label>
-
-                  <input
-                    type="text"
-                    name="title"
-                    value={formData.title}
-                    onChange={handleChange}
-                    placeholder="e.g. Mobile Recharge"
-                    required
-                  />
-                </>
-
-              )}
-
-              {/* AMOUNT + TYPE */}
 
               <div className="form-row">
 
@@ -855,6 +857,7 @@ function App() {
 
                 </div>
 
+
                 <div>
 
                   <label>
@@ -865,6 +868,10 @@ function App() {
                     name="type"
                     value={formData.type}
                     onChange={handleChange}
+                    disabled={
+                      formData.category ===
+                      "Salary"
+                    }
                   >
 
                     <option value="expense">
@@ -881,7 +888,55 @@ function App() {
 
               </div>
 
-              {/* DATE */}
+
+              <label>
+                Category
+              </label>
+
+              <select
+                name="category"
+                value={formData.category}
+                onChange={handleChange}
+              >
+
+                <option>
+                  Food
+                </option>
+
+                <option>
+                  Transport
+                </option>
+
+                <option>
+                  Shopping
+                </option>
+
+                <option>
+                  Bills
+                </option>
+
+                <option>
+                  Salary
+                </option>
+
+                <option>
+                  Education
+                </option>
+
+                <option>
+                  Entertainment
+                </option>
+
+                <option>
+                  Health
+                </option>
+
+                <option>
+                  Other
+                </option>
+
+              </select>
+
 
               <label>
                 Date
@@ -895,7 +950,6 @@ function App() {
                 required
               />
 
-              {/* DESCRIPTION */}
 
               <label>
                 Description
@@ -908,7 +962,6 @@ function App() {
                 placeholder="Optional note..."
               />
 
-              {/* BUTTONS */}
 
               <div className="form-actions">
 
@@ -919,6 +972,7 @@ function App() {
                 >
                   Cancel
                 </button>
+
 
                 <button
                   type="submit"
