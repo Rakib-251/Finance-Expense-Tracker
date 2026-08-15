@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import "./App.css";
 
-const API_URL = "https://finance-expense-tracker-api-3yh8.onrender.com/api/transactions";
+const API_URL =
+  "https://finance-expense-tracker-api-3yh8.onrender.com/api/transactions";
 
 function App() {
   const [transactions, setTransactions] = useState([]);
@@ -15,7 +16,7 @@ function App() {
   );
 
   const [formData, setFormData] = useState({
-    title: "",
+    title: "Food",
     amount: "",
     type: "expense",
     category: "Food",
@@ -52,7 +53,7 @@ function App() {
 
   const resetForm = () => {
     setFormData({
-      title: "",
+      title: "Food",
       amount: "",
       type: "expense",
       category: "Food",
@@ -69,10 +70,18 @@ function App() {
   // =========================
 
   const handleChange = (event) => {
-    setFormData({
-      ...formData,
-      [event.target.name]: event.target.value,
-    });
+    const { name, value } = event.target;
+
+    setFormData((previous) => ({
+      ...previous,
+      [name]: value,
+
+      // If category is NOT Other,
+      // automatically use category as title.
+      ...(name === "category" && value !== "Other"
+        ? { title: value }
+        : {}),
+    }));
   };
 
   // =========================
@@ -94,8 +103,18 @@ function App() {
         headers: {
           "Content-Type": "application/json",
         },
+
         body: JSON.stringify({
           ...formData,
+
+          // If category is Other, use the
+          // manually entered title.
+          // Otherwise use category as title.
+          title:
+            formData.category === "Other"
+              ? formData.title.trim()
+              : formData.category,
+
           amount: Number(formData.amount),
         }),
       });
@@ -110,7 +129,6 @@ function App() {
 
       resetForm();
       await fetchTransactions();
-
     } catch (error) {
       console.error("Save error:", error);
       alert(`Error: ${error.message}`);
@@ -165,7 +183,6 @@ function App() {
       }
 
       await fetchTransactions();
-
     } catch (error) {
       console.error("Delete error:", error);
       alert(`Delete failed: ${error.message}`);
@@ -202,7 +219,6 @@ function App() {
       setTransactions([]);
 
       alert("All transactions deleted successfully.");
-
     } catch (error) {
       console.error("Reset error:", error);
       alert(`Reset failed: ${error.message}`);
@@ -344,7 +360,6 @@ function App() {
 
       </header>
 
-
       <main className="dashboard">
 
         {/* WELCOME */}
@@ -368,7 +383,6 @@ function App() {
 
           </div>
 
-
           <div className="month-selector">
 
             <label>
@@ -386,7 +400,6 @@ function App() {
           </div>
 
         </section>
-
 
         {/* SUMMARY CARDS */}
 
@@ -416,7 +429,6 @@ function App() {
 
           </div>
 
-
           <div className="summary-card">
 
             <div className="card-top">
@@ -440,7 +452,6 @@ function App() {
             </p>
 
           </div>
-
 
           <div className="summary-card">
 
@@ -468,7 +479,6 @@ function App() {
 
         </section>
 
-
         {/* MONTHLY SUMMARY */}
 
         <section className="monthly-summary">
@@ -485,7 +495,6 @@ function App() {
 
           </div>
 
-
           <div className="monthly-grid">
 
             <div>
@@ -500,7 +509,6 @@ function App() {
 
             </div>
 
-
             <div>
 
               <span>
@@ -512,7 +520,6 @@ function App() {
               </strong>
 
             </div>
-
 
             <div>
 
@@ -529,7 +536,6 @@ function App() {
           </div>
 
         </section>
-
 
         {/* TRANSACTIONS */}
 
@@ -555,7 +561,6 @@ function App() {
 
           </div>
 
-
           {/* SEARCH AND FILTER */}
 
           <div className="filters">
@@ -568,7 +573,6 @@ function App() {
                 setSearch(event.target.value)
               }
             />
-
 
             <select
               value={filterType}
@@ -592,7 +596,6 @@ function App() {
             </select>
 
           </div>
-
 
           {/* EMPTY STATE */}
 
@@ -646,7 +649,6 @@ function App() {
                           : "↘"}
                       </div>
 
-
                       <div>
 
                         <h3>
@@ -665,7 +667,6 @@ function App() {
 
                     </div>
 
-
                     <div className="transaction-right">
 
                       <strong
@@ -675,15 +676,17 @@ function App() {
                             : "expense-text"
                         }
                       >
+
                         {transaction.type === "income"
                           ? "+"
                           : "-"}
+
                         ₹
                         {formatAmount(
                           transaction.amount
                         )}
-                      </strong>
 
+                      </strong>
 
                       <div className="transaction-actions">
 
@@ -694,7 +697,6 @@ function App() {
                         >
                           Edit
                         </button>
-
 
                         <button
                           className="delete-action"
@@ -724,7 +726,6 @@ function App() {
 
       </main>
 
-
       {/* ADD / EDIT MODAL */}
 
       {showForm && (
@@ -749,7 +750,6 @@ function App() {
 
               </div>
 
-
               <button
                 className="close-btn"
                 onClick={resetForm}
@@ -759,22 +759,81 @@ function App() {
 
             </div>
 
-
             <form onSubmit={handleSubmit}>
 
+              {/* CATEGORY FIRST */}
+
               <label>
-                Title
+                Category
               </label>
 
-              <input
-                type="text"
-                name="title"
-                value={formData.title}
+              <select
+                name="category"
+                value={formData.category}
                 onChange={handleChange}
-                placeholder="e.g. Monthly Salary"
                 required
-              />
+              >
 
+                <option value="Food">
+                  Food
+                </option>
+
+                <option value="Transport">
+                  Transport
+                </option>
+
+                <option value="Shopping">
+                  Shopping
+                </option>
+
+                <option value="Bills">
+                  Bills
+                </option>
+
+                <option value="Salary">
+                  Salary
+                </option>
+
+                <option value="Education">
+                  Education
+                </option>
+
+                <option value="Entertainment">
+                  Entertainment
+                </option>
+
+                <option value="Health">
+                  Health
+                </option>
+
+                <option value="Other">
+                  Other
+                </option>
+
+              </select>
+
+              {/* TITLE ONLY FOR OTHER */}
+
+              {formData.category === "Other" && (
+
+                <>
+                  <label>
+                    Title
+                  </label>
+
+                  <input
+                    type="text"
+                    name="title"
+                    value={formData.title}
+                    onChange={handleChange}
+                    placeholder="e.g. Mobile Recharge"
+                    required
+                  />
+                </>
+
+              )}
+
+              {/* AMOUNT + TYPE */}
 
               <div className="form-row">
 
@@ -795,7 +854,6 @@ function App() {
                   />
 
                 </div>
-
 
                 <div>
 
@@ -823,55 +881,7 @@ function App() {
 
               </div>
 
-
-              <label>
-                Category
-              </label>
-
-              <select
-                name="category"
-                value={formData.category}
-                onChange={handleChange}
-              >
-
-                <option>
-                  Food
-                </option>
-
-                <option>
-                  Transport
-                </option>
-
-                <option>
-                  Shopping
-                </option>
-
-                <option>
-                  Bills
-                </option>
-
-                <option>
-                  Salary
-                </option>
-
-                <option>
-                  Education
-                </option>
-
-                <option>
-                  Entertainment
-                </option>
-
-                <option>
-                  Health
-                </option>
-
-                <option>
-                  Other
-                </option>
-
-              </select>
-
+              {/* DATE */}
 
               <label>
                 Date
@@ -885,6 +895,7 @@ function App() {
                 required
               />
 
+              {/* DESCRIPTION */}
 
               <label>
                 Description
@@ -897,6 +908,7 @@ function App() {
                 placeholder="Optional note..."
               />
 
+              {/* BUTTONS */}
 
               <div className="form-actions">
 
@@ -907,7 +919,6 @@ function App() {
                 >
                   Cancel
                 </button>
-
 
                 <button
                   type="submit"
